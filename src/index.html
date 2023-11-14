@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <!-- Couldn't get stylesheet to work -->
+  <style>
+  #button {
+    background-color: lightskyblue;
+    padding: 5px
+  }
+  label {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  form {
+    margin-bottom: 20px;
+  }
+  #messages {
+    font-weight: 200;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  </style>
+
+  <form name="setusername">
+    <label class="prompt">Enter your username:</label>
+    <input type="text" name="username" maxlength="50"/>
+    <input id="button" type="submit" value="Set"/>  
+  </form>
+
+  <form name="setcolor">
+    <label for="colors" class="prompt">Choose your preferred message color:</label>
+    <select name="colors">
+      <option value="black">Black (default)</option>
+      <option value="blue">Blue</option>
+      <option value="red">Red</option>
+      <option value="green">Green</option>
+      <option value="purple">Purple</option>
+    </select>
+    <input id="button" type="submit" value="Set"/>  
+  </form>
+
+  <form name="publish">
+    <label class="prompt">Message:</label>
+    <input type="text" name="message" maxlength="50"/>
+    <input  id="button" type="submit" value="Send"/>
+  </form>
+  
+  <div id="messages"></div>
+  
+  <script>
+  let url = location.host == 'localhost' ?
+    'ws://localhost:8080/ws' : location.host == 'javascript.local' ?
+    `ws://javascript.local/article/websocket/chat/ws` : // dev integration with local site
+    `wss://javascript.info/article/websocket/chat/ws`; // prod integration with javascript.info
+  
+  let socket = new WebSocket(url);
+  
+  let user = "";
+  let messagecolor = "";
+
+  // send message from the form
+  document.forms.publish.onsubmit = function() {
+    let outgoingMessage = this.message.value;
+  
+    socket.send(outgoingMessage);
+    return false;
+  };
+
+  // get username
+  document.forms.setusername.onsubmit = function() {
+    let username = this.username.value;
+    user = username;
+
+    return false;
+  }
+
+  // get message color choice
+  document.forms.setcolor.onsubmit = function() {
+    let color = this.colors.value;
+    messagecolor = color;
+
+    return false;
+  }
+  
+  // handle incoming messages
+  socket.onmessage = function(event) {
+    let incomingMessage = event.data;
+    showMessage(incomingMessage);
+  };
+  
+  socket.onclose = event => console.log(`Closed ${event.code}`);
+  
+  // show message in div#messages
+  function showMessage(message) {
+    let messageElem = document.createElement('div');
+    messageElem.style.color = messagecolor;
+    messageElem.textContent = user + ": " + message;
+    document.getElementById('messages').append(messageElem);
+  }
+  </script>
+
+</html>
