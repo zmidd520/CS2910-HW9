@@ -59,7 +59,7 @@
 
   // send message from the form
   document.forms.publish.onsubmit = function() {
-    let outgoingMessage = this.message.value;
+    let outgoingMessage = user + ": " + this.message.value;
   
     socket.send(outgoingMessage);
     return false;
@@ -93,7 +93,7 @@
   function showMessage(message) {
     let messageElem = document.createElement('div');
     messageElem.style.color = messagecolor;
-    messageElem.textContent = user + ": " + message;
+    messageElem.textContent = message;
     document.getElementById('messages').append(messageElem);
   }
   </script>
